@@ -2,15 +2,15 @@
  * $RCSfile$
  * $Revision$
  * $Date$
- *
+ * <p>
  * Copyright 2003-2007 Jive Software.
- *
+ * <p>
  * All rights reserved. Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +19,8 @@
  */
 
 package org.jivesoftware.smack;
+
+import android.util.Log;
 
 import org.jivesoftware.smack.packet.Packet;
 
@@ -32,10 +34,9 @@ import java.util.concurrent.BlockingQueue;
  * interceptors can be registered to dynamically modify packets before they're actually
  * sent. Packet listeners can be registered to listen for all outgoing packets.
  *
+ * @author Matt Tucker
  * @see Connection#addPacketInterceptor
  * @see Connection#addPacketSendingListener
- *
- * @author Matt Tucker
  */
 class PacketWriter {
 
@@ -57,10 +58,10 @@ class PacketWriter {
         init();
     }
 
-    /** 
-    * Initializes the writer in order to be used. It is called at the first connection and also 
-    * is invoked if the connection is disconnected by an error.
-    */ 
+    /**
+     * Initializes the writer in order to be used. It is called at the first connection and also
+     * is invoked if the connection is disconnected by an error.
+     */
     protected void init() {
         this.writer = connection.writer;
         done = false;
@@ -73,7 +74,7 @@ class PacketWriter {
         writerThread.setName("Smack Packet Writer (" + connection.connectionCounterValue + ")");
         writerThread.setDaemon(true);
     }
-    
+
     /**
      * Sends the specified packet to the server.
      *
@@ -87,8 +88,7 @@ class PacketWriter {
 
             try {
                 queue.put(packet);
-            }
-            catch (InterruptedException ie) {
+            } catch (InterruptedException ie) {
                 ie.printStackTrace();
                 return;
             }
@@ -126,7 +126,7 @@ class PacketWriter {
         }
         // Interrupt the keep alive thread if one was created
         if (keepAliveThread != null)
-                keepAliveThread.interrupt();
+            keepAliveThread.interrupt();
     }
 
     /**
@@ -142,8 +142,7 @@ class PacketWriter {
                 synchronized (queue) {
                     queue.wait();
                 }
-            }
-            catch (InterruptedException ie) {
+            } catch (InterruptedException ie) {
                 // Do nothing
             }
         }
@@ -173,8 +172,7 @@ class PacketWriter {
                     writer.write(packet.toXML());
                 }
                 writer.flush();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 
@@ -185,20 +183,16 @@ class PacketWriter {
             try {
                 writer.write("</stream:stream>");
                 writer.flush();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 // Do nothing
-            }
-            finally {
+            } finally {
                 try {
                     writer.close();
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     // Do nothing
                 }
             }
-        }
-        catch (IOException ioe) {
+        } catch (IOException ioe) {
             // The exception can be ignored if the the connection is 'done'
             // or if the it was caused because the socket got closed
             if (!(done || connection.isSocketClosed())) {
@@ -206,7 +200,7 @@ class PacketWriter {
                 // packetReader could be set to null by an concurrent disconnect() call.
                 // Therefore Prevent NPE exceptions by checking packetReader.
                 if (connection.packetReader != null) {
-                        connection.notifyConnectionError(ioe);
+                    connection.notifyConnectionError(ioe);
                 }
             }
         }
@@ -228,5 +222,42 @@ class PacketWriter {
         stream.append(" version=\"1.0\">");
         writer.write(stream.toString());
         writer.flush();
+    }
+
+    /**
+     * 供外部调用，开启心跳发送
+     */
+    public void startHeartBeat() {
+        HeartBeatThread heartBeatThread = new HeartBeatThread();
+        heartBeatThread.start();
+    }
+
+    /**
+     * 发送心跳包的Thread
+     */
+    class HeartBeatThread extends Thread {
+        @Override
+        public void run() {
+            while (!done) {
+                try {
+                    writer.write(" ");
+                    writer.flush();
+                    Log.d("TAG", "===============heart beat send once ===============");
+                    //发送完一次后，等待10s钟，再发送
+                    Thread.sleep(10 * 1000);
+                } catch (Exception e) {
+                    // The exception can be ignored if the the connection is 'done'
+                    // or if the it was caused because the socket got closed
+                    if (!(done || connection.isSocketClosed())) {
+                        done = true;
+                        // packetReader could be set to null by an concurrent disconnect() call.
+                        // Therefore Prevent NPE exceptions by checking packetReader.
+                        if (connection.packetReader != null) {
+                            connection.notifyConnectionError(e);
+                        }
+                    }
+                }
+            }
+        }
     }
 }

@@ -60,7 +60,7 @@ import javax.net.ssl.SSLSocket;
 /**
  * Creates a socket connection to a XMPP server. This is the default connection
  * to a Jabber server and is specified in the XMPP Core (RFC 3920).
- * 
+ *
  * @see Connection
  * @author Matt Tucker
  */
@@ -207,7 +207,7 @@ public class XMPPConnection extends Connection {
     /**
      * Install a parsing exception callback, which will be invoked once an exception is encountered while parsing a
      * stanza
-     * 
+     *
      * @param callback the callback to install
      */
     public void setParsingExceptionCallback(ParsingExceptionCallback callback) {
@@ -216,7 +216,7 @@ public class XMPPConnection extends Connection {
 
     /**
      * Get the current active parsing exception callback.
-     *  
+     *
      * @return the active exception callback or null if there is none
      */
     public ParsingExceptionCallback getParsingExceptionCallback() {
@@ -897,9 +897,9 @@ public class XMPPConnection extends Connection {
 
     /**
      * Returns the compression handler that can be used for one compression methods offered by the server.
-     * 
+     *
      * @return a instance of XMPPInputOutputStream or null if no suitable instance was found
-     * 
+     *
      */
     private XMPPInputOutputStream maybeGetCompressionHandler() {
         if (compressionMethods != null) {
@@ -1080,7 +1080,7 @@ public class XMPPConnection extends Connection {
             }
         }
     }
-    
+
 
     /**
      * Sends a notification indicating that the connection was reconnected successfully.
@@ -1096,6 +1096,15 @@ public class XMPPConnection extends Connection {
                 // from a faulty listener
                 e.printStackTrace();
             }
+        }
+    }
+
+    /**
+     * 启动心跳
+     */
+    public void startHeartBeat() {
+        if (packetWriter != null) {
+            packetWriter.startHeartBeat();
         }
     }
 }
