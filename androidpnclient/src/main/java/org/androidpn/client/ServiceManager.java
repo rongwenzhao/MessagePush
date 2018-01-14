@@ -15,16 +15,19 @@
  */
 package org.androidpn.client;
 
-import java.util.Properties;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.text.TextUtils;
 import android.util.Log;
 
-/** 
+import org.jivesoftware.smack.packet.IQ;
+
+import java.util.Properties;
+
+/**
  * This class is to manage the notificatin service and to load the configuration.
  *
  * @author Sehwan Noh (devnoh@gmail.com)
@@ -101,6 +104,50 @@ public final class ServiceManager {
             }
         });
         serviceThread.start();
+    }
+
+    public void setAlias(final String alias) {
+        if (TextUtils.isEmpty(alias)) {
+            return;
+        }
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    //等待1秒钟，确保NotificationService已经启动成功，1秒足够。
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                NotificationService notificationService = NotificationService.getNotificationService();
+                if (notificationService != null) {
+                    XmppManager xmppManager = notificationService.getXmppManager();
+                    if (xmppManager != null) {
+                        //同步机制，需要等到 xmppManager 登录成功才可以发送此包。
+                        if (!xmppManager.isAuthenticated()) {
+                            synchronized (xmppManager) {
+                                try {
+                                    Log.d(LOGTAG, "wait for authenticated==========");
+                                    xmppManager.wait();
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                        Log.d(LOGTAG, "send package to set alias==========");
+                        String username = sharedPrefs.getString(Constants.XMPP_USERNAME, "");
+                        if (!TextUtils.isEmpty(username)) {
+                            SetAliasIQ setAliasIQ = new SetAliasIQ();
+                            setAliasIQ.setType(IQ.Type.SET);
+                            setAliasIQ.setAlias(alias);
+                            setAliasIQ.setUsername(username);
+                            xmppManager.getConnection().sendPacket(setAliasIQ);
+                        }
+                    }
+                }
+            }
+        }).start();
     }
 
     public void stopService() {

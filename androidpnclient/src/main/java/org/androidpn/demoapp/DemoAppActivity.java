@@ -15,13 +15,13 @@
  */
 package org.androidpn.demoapp;
 
-import org.androidpn.client.ServiceManager;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+
+import org.androidpn.client.ServiceManager;
 
 /**
  * This is an androidpn client demo application.
@@ -49,6 +49,8 @@ public class DemoAppActivity extends Activity {
         ServiceManager serviceManager = new ServiceManager(this);
         serviceManager.setNotificationIcon(R.drawable.notification);
         serviceManager.startService();
+        serviceManager.setAlias("abc123456");
+
     }
 
 }

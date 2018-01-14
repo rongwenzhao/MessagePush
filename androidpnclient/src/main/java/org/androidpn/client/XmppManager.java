@@ -245,7 +245,7 @@ public class XmppManager {
         return connection != null && connection.isConnected();
     }
 
-    private boolean isAuthenticated() {
+    public boolean isAuthenticated() {
         return connection != null && connection.isConnected()
                 && connection.isAuthenticated();
     }
@@ -512,6 +512,11 @@ public class XmppManager {
                     //add heartBeat thread start logic
                     connection.startHeartBeat();
 
+                    //登录成功，唤醒等待的设置别名的线程，可以发送设置别名包了。
+                    synchronized (xmppManager){
+                        xmppManager.notifyAll();
+                    }
+
                 } catch (XMPPException e) {
                     Log.e(LOGTAG, "LoginTask.run()... xmpp error");
                     Log.e(LOGTAG, "Failed to login to xmpp server. Caused by: "
@@ -544,5 +549,4 @@ public class XmppManager {
 
         }
     }
-
 }

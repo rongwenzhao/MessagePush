@@ -15,11 +15,6 @@
  */
 package org.androidpn.client;
 
-import java.util.Random;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -32,6 +27,11 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 /**
  * Service that continues to run in background and respond to the push 
  * notification events from the server. This should be registered as service
@@ -43,6 +43,8 @@ public class NotificationService extends Service {
 
     private static final String LOGTAG = LogUtil
             .makeLogTag(NotificationService.class);
+
+    private static NotificationService notificationService;
 
     public static final String SERVICE_NAME = "org.androidpn.client.NotificationService";
 
@@ -70,6 +72,10 @@ public class NotificationService extends Service {
 
     private String deviceId;
 
+    public static NotificationService getNotificationService(){
+        return notificationService;
+    }
+
     public NotificationService() {
         notificationReceiver = new NotificationReceiver();
         connectivityReceiver = new ConnectivityReceiver(this);
@@ -82,6 +88,7 @@ public class NotificationService extends Service {
     @Override
     public void onCreate() {
         Log.d(LOGTAG, "onCreate()...");
+        notificationService = this;
         telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         // wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         // connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -129,6 +136,7 @@ public class NotificationService extends Service {
     @Override
     public void onDestroy() {
         Log.d(LOGTAG, "onDestroy()...");
+        notificationService = null;
         stop();
     }
 
