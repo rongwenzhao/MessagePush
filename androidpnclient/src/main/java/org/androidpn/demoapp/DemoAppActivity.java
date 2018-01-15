@@ -23,9 +23,12 @@ import android.widget.Button;
 
 import org.androidpn.client.ServiceManager;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * This is an androidpn client demo application.
- * 
+ *
  * @author Sehwan Noh (devnoh@gmail.com)
  */
 public class DemoAppActivity extends Activity {
@@ -49,7 +52,13 @@ public class DemoAppActivity extends Activity {
         ServiceManager serviceManager = new ServiceManager(this);
         serviceManager.setNotificationIcon(R.drawable.notification);
         serviceManager.startService();
+        //设置别名调用
         serviceManager.setAlias("abc123456");
+        //设置关注的标签
+        List<String> tags = new ArrayList<String>();
+        tags.add("sports");
+        tags.add("tech");
+        serviceManager.setTags(tags);
 
     }
 

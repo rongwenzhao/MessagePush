@@ -162,7 +162,7 @@ public class PacketParserUtils {
     }
 
     /**
-     * Returns the content of a tag as string regardless of any tags included.
+     * Returns the content of a tag as string regardless of any tagList included.
      * 
      * @param parser the XML pull parser
      * @return the content of a tag as string
@@ -754,7 +754,7 @@ public class PacketParserUtils {
             }
         }
         boolean done = false;
-        // Parse the text and condition tags
+        // Parse the text and condition tagList
         while (!done) {
             int eventType = parser.next();
             if (eventType == XmlPullParser.START_TAG) {

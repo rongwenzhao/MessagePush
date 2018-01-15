@@ -25,6 +25,7 @@ import android.util.Log;
 
 import org.jivesoftware.smack.packet.IQ;
 
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -106,6 +107,60 @@ public final class ServiceManager {
         serviceThread.start();
     }
 
+    /**
+     * 设置关注标签的方法。
+     *
+     * @param tagList
+     */
+    public void setTags(final List<String> tagList) {
+        if (tagList == null || tagList.isEmpty()) {
+            return;
+        }
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    //等待1秒钟，确保NotificationService已经启动成功，1秒足够。
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                NotificationService notificationService = NotificationService.getNotificationService();
+                if (notificationService != null) {
+                    XmppManager xmppManager = notificationService.getXmppManager();
+                    if (xmppManager != null) {
+                        //同步机制，需要等到 xmppManager 登录成功才可以发送此包。
+                        if (!xmppManager.isAuthenticated()) {
+                            synchronized (xmppManager) {
+                                try {
+                                    Log.d(LOGTAG, "wait for authenticated to set tags==========");
+                                    xmppManager.wait();
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                        Log.d(LOGTAG, "send package to set tags==========");
+                        String username = sharedPrefs.getString(Constants.XMPP_USERNAME, "");
+                        if (!TextUtils.isEmpty(username)) {
+                            SetTagsIQ setTagsIQ = new SetTagsIQ();
+                            setTagsIQ.setType(IQ.Type.SET);
+                            setTagsIQ.setUsername(username);
+                            setTagsIQ.setTagList(tagList);
+                            xmppManager.getConnection().sendPacket(setTagsIQ);
+                        }
+                    }
+                }
+            }
+        }).start();
+    }
+
+    /**
+     * 设置别名的方法
+     *
+     * @param alias
+     */
     public void setAlias(final String alias) {
         if (TextUtils.isEmpty(alias)) {
             return;
