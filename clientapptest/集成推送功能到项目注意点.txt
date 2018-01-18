@@ -1,0 +1,7 @@
+1、将 项目org.androidpn.demoapp的apply plugin: 'com.android.application' 改为 library
+2、在主项目中添加对org.androidpn.demoapp项目的引用；
+3、注意在主项目的manifest文件的application节点中，添加 tools:replace="android:icon"，
+   同时需要在application的命名空间中加 xmlns:tools="http://schemas.android.com/tools"；
+4、在使用intent启动服务时，在生命intent的时候同时调用setAction和setPackage方法，
+   这样创建出来的intent就是显性的，解决Service Intent must be explicit问题；
+5、可能还会有其他问题，具体其他遇到的问题，集成时具体解决。
