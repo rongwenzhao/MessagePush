@@ -1,12 +1,13 @@
 apply plugin: 'com.android.application'
 android {
-    compileSdkVersion 8
-    buildToolsVersion "26.0.2"
+    compileSdkVersion 26
+    buildToolsVersion '26.0.2'
+    useLibrary 'org.apache.http.legacy'
 
     defaultConfig {
         applicationId "org.androidpn.demoapp"
-        minSdkVersion 3
-        targetSdkVersion 3
+        minSdkVersion 16
+        targetSdkVersion 16
     }
 
     buildTypes {
@@ -19,4 +20,10 @@ android {
 }
 
 dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    implementation 'com.github.bumptech.glide:glide:4.5.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.5.0'
 }

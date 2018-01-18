@@ -20,10 +20,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-/** 
+/**
  * Broadcast receiver that handles push notification messages from the server.
- * This should be registered as receiver in AndroidManifest.xml. 
- * 
+ * This should be registered as receiver in AndroidManifest.xml.
+ *
  * @author Sehwan Noh (devnoh@gmail.com)
  */
 public final class NotificationReceiver extends BroadcastReceiver {
@@ -57,16 +57,18 @@ public final class NotificationReceiver extends BroadcastReceiver {
                     .getStringExtra(Constants.NOTIFICATION_MESSAGE);
             String notificationUri = intent
                     .getStringExtra(Constants.NOTIFICATION_URI);
+            String notificationImageUrl = intent.getStringExtra(Constants.NOTIFICATION_IMAGE_URL);
 
             Log.d(LOGTAG, "notificationId=" + notificationId);
             Log.d(LOGTAG, "notificationApiKey=" + notificationApiKey);
             Log.d(LOGTAG, "notificationTitle=" + notificationTitle);
             Log.d(LOGTAG, "notificationMessage=" + notificationMessage);
             Log.d(LOGTAG, "notificationUri=" + notificationUri);
+            Log.d(LOGTAG, "notificationImageUrl=" + notificationImageUrl);
 
             Notifier notifier = new Notifier(context);
             notifier.notify(notificationId, notificationApiKey,
-                    notificationTitle, notificationMessage, notificationUri);
+                    notificationTitle, notificationMessage, notificationUri, notificationImageUrl);
         }
 
         //        } else if (Constants.ACTION_NOTIFICATION_CLICKED.equals(action)) {

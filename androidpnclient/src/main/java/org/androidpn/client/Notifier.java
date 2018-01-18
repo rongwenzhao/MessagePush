@@ -15,8 +15,6 @@
  */
 package org.androidpn.client;
 
-import java.util.Random;
-
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -26,7 +24,9 @@ import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.Toast;
 
-/** 
+import java.util.Random;
+
+/**
  * This class is to notify the user of messages with NotificationManager.
  *
  * @author Sehwan Noh (devnoh@gmail.com)
@@ -52,7 +52,7 @@ public class Notifier {
     }
 
     public void notify(String notificationId, String apiKey, String title,
-            String message, String uri) {
+                       String message, String uri, String imageUrl) {
         Log.d(LOGTAG, "notify()...");
 
         Log.d(LOGTAG, "notificationId=" + notificationId);
@@ -68,18 +68,21 @@ public class Notifier {
             }
 
             // Notification
-            Notification notification = new Notification();
-            notification.icon = getNotificationIcon();
-            notification.defaults = Notification.DEFAULT_LIGHTS;
+
+            Notification.Builder builder = new Notification.Builder(context);
+            builder.setSmallIcon(getNotificationIcon());
+
             if (isNotificationSoundEnabled()) {
-                notification.defaults |= Notification.DEFAULT_SOUND;
+                builder.setDefaults(Notification.DEFAULT_LIGHTS | Notification.DEFAULT_SOUND);
             }
             if (isNotificationVibrateEnabled()) {
-                notification.defaults |= Notification.DEFAULT_VIBRATE;
+                builder.setDefaults(Notification.DEFAULT_LIGHTS | Notification.DEFAULT_VIBRATE);
             }
-            notification.flags |= Notification.FLAG_AUTO_CANCEL;
-            notification.when = System.currentTimeMillis();
-            notification.tickerText = message;
+            builder.setAutoCancel(true)//打开程序后图标消失
+                    .setWhen(System.currentTimeMillis())
+                    .setTicker(message);
+
+            //notification.flags |= Notification.FLAG_AUTO_CANCEL;
 
             //            Intent intent;
             //            if (uri != null
@@ -105,6 +108,7 @@ public class Notifier {
             intent.putExtra(Constants.NOTIFICATION_TITLE, title);
             intent.putExtra(Constants.NOTIFICATION_MESSAGE, message);
             intent.putExtra(Constants.NOTIFICATION_URI, uri);
+            intent.putExtra(Constants.NOTIFICATION_IMAGE_URL, imageUrl);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
             intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
@@ -114,8 +118,13 @@ public class Notifier {
             PendingIntent contentIntent = PendingIntent.getActivity(context, random.nextInt(),
                     intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-            notification.setLatestEventInfo(context, title, message,
-                    contentIntent);
+            builder.setContentTitle(title)
+                    .setContentText(message)
+                    .setContentIntent(contentIntent);
+
+            /*notification.setLatestEventInfo(context, title, message,
+                    contentIntent);*/
+            Notification notification = builder.build();
             notificationManager.notify(random.nextInt(), notification);
 
             //            Intent clickIntent = new Intent(

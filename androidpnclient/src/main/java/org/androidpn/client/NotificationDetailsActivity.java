@@ -26,10 +26,14 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-/** 
+import org.androidpn.demoapp.GlideApp;
+
+
+/**
  * Activity for displaying the notification details view.
  *
  * @author Sehwan Noh (devnoh@gmail.com)
@@ -68,6 +72,7 @@ public class NotificationDetailsActivity extends Activity {
                 .getStringExtra(Constants.NOTIFICATION_MESSAGE);
         String notificationUri = intent
                 .getStringExtra(Constants.NOTIFICATION_URI);
+        String notificationImageUrl = intent.getStringExtra(Constants.NOTIFICATION_IMAGE_URL);
 
         Log.d(LOGTAG, "notificationId=" + notificationId);
         Log.d(LOGTAG, "notificationApiKey=" + notificationApiKey);
@@ -84,12 +89,12 @@ public class NotificationDetailsActivity extends Activity {
         //        }
 
         View rootView = createView(notificationTitle, notificationMessage,
-                notificationUri);
+                notificationUri, notificationImageUrl);
         setContentView(rootView);
     }
 
     private View createView(final String title, final String message,
-            final String uri) {
+                            final String uri, final String imageUrl) {
 
         LinearLayout linearLayout = new LinearLayout(this);
         linearLayout.setBackgroundColor(0xffeeeeee);
@@ -139,8 +144,8 @@ public class NotificationDetailsActivity extends Activity {
                 if (uri != null
                         && uri.length() > 0
                         && (uri.startsWith("http:") || uri.startsWith("https:")
-                                || uri.startsWith("tel:") || uri
-                                .startsWith("geo:"))) {
+                        || uri.startsWith("tel:") || uri
+                        .startsWith("geo:"))) {
                     intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
                 } else {
                     intent = new Intent().setClassName(
@@ -164,6 +169,15 @@ public class NotificationDetailsActivity extends Activity {
         innerLayout.addView(okButton);
 
         linearLayout.addView(innerLayout);
+
+        ImageView imageView = new ImageView(this);
+        layoutParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        imageView.setLayoutParams(layoutParams);
+        linearLayout.addView(imageView);
+
+        GlideApp.with(this).load(imageUrl).into(imageView);
 
         return linearLayout;
     }
