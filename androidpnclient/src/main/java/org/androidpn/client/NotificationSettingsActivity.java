@@ -66,6 +66,12 @@ public class NotificationSettingsActivity extends PreferenceActivity {
         //        // inlinePrefCat.setTitle("");
         //        root.addPreference(prefCat);
 
+        CheckBoxPreference autoStart = new CheckBoxPreference(this);
+        autoStart.setKey(Constants.SETTINGS_AUTO_START);
+        autoStart.setTitle("Auto Start");
+        autoStart.setSummary("Auto Start at boot");
+        autoStart.setDefaultValue(true);
+
         CheckBoxPreference notifyPref = new CheckBoxPreference(this);
         notifyPref.setKey(Constants.SETTINGS_NOTIFICATION_ENABLED);
         notifyPref.setTitle("Notifications Enabled");
@@ -100,6 +106,7 @@ public class NotificationSettingsActivity extends PreferenceActivity {
         vibratePref.setDefaultValue(Boolean.TRUE);
         // vibratePref.setDependency(Constants.SETTINGS_NOTIFICATION_ENABLED);
 
+        root.addPreference(autoStart);
         root.addPreference(notifyPref);
         root.addPreference(soundPref);
         root.addPreference(vibratePref);
