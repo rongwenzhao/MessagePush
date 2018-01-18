@@ -22,6 +22,9 @@ import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.packet.Packet;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  * This class notifies the receiver of incoming notifcation packets asynchronously.
  *
@@ -55,6 +58,16 @@ public class NotificationPacketListener implements PacketListener {
                 //                String notificationTicker = notification.getTicker();
                 String notificationUri = notification.getUri();
                 String notificationImageUrl = notification.getImageUrl();
+
+                //保存到本地
+                NotificationHistory history = new NotificationHistory();
+                history.setApiKey(notificationApiKey);
+                history.setTitle(notificationTitle);
+                history.setMessage(notificationMessage);
+                history.setUri(notificationUri);
+                history.setImageUrl(notificationImageUrl);
+                history.setTime(new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date()));
+                history.save();//保存到数据库
 
                 Intent intent = new Intent(Constants.ACTION_SHOW_NOTIFICATION);
                 intent.putExtra(Constants.NOTIFICATION_ID, notificationId);
