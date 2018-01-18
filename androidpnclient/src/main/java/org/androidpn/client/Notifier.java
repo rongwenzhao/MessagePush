@@ -72,11 +72,12 @@ public class Notifier {
             Notification.Builder builder = new Notification.Builder(context);
             builder.setSmallIcon(getNotificationIcon());
 
-            if (isNotificationSoundEnabled()) {
-                builder.setDefaults(Notification.DEFAULT_LIGHTS | Notification.DEFAULT_SOUND);
-            }
-            if (isNotificationVibrateEnabled()) {
+            if (isNotificationSoundEnabled() && isNotificationVibrateEnabled()) {
+                builder.setDefaults(Notification.DEFAULT_LIGHTS | Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE);
+            } else if (isNotificationVibrateEnabled()) {
                 builder.setDefaults(Notification.DEFAULT_LIGHTS | Notification.DEFAULT_VIBRATE);
+            } else if (isNotificationSoundEnabled()) {
+                builder.setDefaults(Notification.DEFAULT_LIGHTS | Notification.DEFAULT_SOUND);
             }
             builder.setAutoCancel(true)//打开程序后图标消失
                     .setWhen(System.currentTimeMillis())
